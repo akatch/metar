@@ -14,16 +14,6 @@ defmodule MetarTest do
         wind_bearing: 360,
         wind_gusting_kt: 18,
         wind_speed_kt: 10
-      },
-      %{
-        heat_index_c: nil,
-        relative_humidity: 68,
-        summary: "27°F (16°F) overcast",
-        temperature_f: 27,
-        temperature_k: 267,
-        wind_chill_c: -9,
-        wind_speed_kph: 19,
-        wind_speed_mph: 12
       }
     },
     {
@@ -37,16 +27,6 @@ defmodule MetarTest do
         wind_bearing: 220,
         wind_gusting_kt: nil,
         wind_speed_kt: 6
-      },
-      %{
-        heat_index_c: nil,
-        relative_humidity: 86,
-        summary: "28°F (21°F) clear",
-        temperature_f: 28,
-        temperature_k: 268,
-        wind_chill_c: -6,
-        wind_speed_kph: 11,
-        wind_speed_mph: 7
       }
     },
     {
@@ -60,16 +40,6 @@ defmodule MetarTest do
         wind_bearing: 190,
         wind_gusting_kt: nil,
         wind_speed_kt: 3
-      },
-      %{
-        heat_index_c: nil,
-        relative_humidity: 81,
-        summary: "48°F (47°F) mostly cloudy",
-        temperature_f: 48,
-        temperature_k: 279,
-        wind_chill_c: 8,
-        wind_speed_kph: 6,
-        wind_speed_mph: 3
       }
     },
     {
@@ -83,16 +53,6 @@ defmodule MetarTest do
         wind_bearing: 0,
         wind_gusting_kt: nil,
         wind_speed_kt: 0
-      },
-      %{
-        heat_index_c: nil,
-        relative_humidity: 100,
-        summary: "54°F mist",
-        temperature_f: 54,
-        temperature_k: 282,
-        wind_chill_c: nil,
-        wind_speed_kph: 0,
-        wind_speed_mph: 0
       }
     },
     {
@@ -106,21 +66,11 @@ defmodule MetarTest do
         wind_bearing: 210,
         wind_gusting_kt: nil,
         wind_speed_kt: 18
-      },
-      %{
-        heat_index_c: 27,
-        relative_humidity: 27,
-        summary: "82°F (81°F) mostly cloudy",
-        temperature_f: 82,
-        temperature_k: 298,
-        wind_chill_c: nil,
-        wind_speed_kph: 33,
-        wind_speed_mph: 21
       }
     }
   ]
 
   test "METAR parsing" do
-    for {input, output, _converted} <- @cases, do: assert(output == Metar.parse(input))
+    for {input, output} <- @cases, do: assert(output == Metar.parse(input))
   end
 end
