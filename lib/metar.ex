@@ -59,7 +59,7 @@ defmodule Metar do
     case precipitation do
       "DZ" -> "drizzle"
       "IC" -> "ice crystals"
-      "UP" -> "unknown"
+      "UP" -> nil
       "RA" -> "rain"
       "PL" -> "ice pellets"
       "SN" -> "snow"
@@ -109,13 +109,20 @@ defmodule Metar do
   @doc """
   Parse a METAR string.
 
+  ## Regex101
+  # https://regex101.com/r/ksSWUy/1
+
   ## Examples
 
   iex> Metar.parse("2023/01/13 15:53 KMSN 131553Z 36010G18KT 10SM OVC029 M03/M08 A3030 RMK AO2 SLP273 T10281083")
   %{
+    altitude: 3030,
     condition: "overcast",
     dewpoint_c: -8,
+    lastmod: 131553,
     phenomena: nil,
+    remarks: "A02 SLP273 T102810I3",
+    station: "KMSN",
     temperature_c: -3,
     visibility_mi: 10,
     wind_bearing: 360,
@@ -126,6 +133,7 @@ defmodule Metar do
   """
   def parse(metar) do
     %{
+      "altitude" => a,
       "condition" => c,
       "dewpoint" => dp,
       "gusting" => g,
@@ -134,20 +142,27 @@ defmodule Metar do
       "precipitation" => prec,
       "obscurity" => obs,
       "other" => oth,
+      "lastmod" => l,
+      "remarks" => r,
+      "station" => s,
       "temperature" => t,
       "visibility" => v,
       "wind_speed" => ws,
       "wind_direction" => wd
     } =
       Regex.named_captures(
-        ~r/(?<wind_direction>\d{3})(?<wind_speed>\d{2})(?:G(?<gusting>\d{2}))?KT\s(?<visibility>\d+)(?:SM)?(?:\s(?<quality>\+|-|VC)?(?<description>MI|BL|BC|SH|PR|DR|TS|FZ)?(?<precipitation>DZ|IC|UP|RA|PL|SN|GR|SG|GS)?(?<obscurity>BR|SA|FU|HZ|VA|PY|DU|FG)?(?<other>SQ|FC|SS|DS|PO)?)?\s(?<condition>CLR|SKC|FEW|SCT|BKN|OVC|VV)(?:\d{3})?(?:.*)?\s(?<temperature>M?(\d{2}))\/(?<dewpoint>M?(\d{2}))?/,
+        ~r/(?<station>[A-Z]{4})\s(?<lastmod>\d{6})Z(?:.*)(?<wind_direction>\d{3})(?<wind_speed>\d{2})(?:G(?<gusting>\d{2}))?KT(?:.*)(?<visibility>\d+(?:\s+\d+\/\d+)?)(?:SM)?(?:\s(?<quality>\+|-|VC)?(?<description>MI|BL|BC|SH|PR|DR|TS|FZ)?(?<precipitation>DZ|IC|UP|RA|PL|SN|GR|SG|GS)?(?<obscurity>BR|SA|FU|HZ|VA|PY|DU|FG)?(?<other>SQ|FC|SS|DS|PO)?)?\s(?<condition>CLR|SKC|FEW|SCT|BKN|OVC|VV)(?:\d{3})?(?:.*)?\s(?:(?<temperature>M?(\d{2}))\/(?<dewpoint>M?(\d{2}))?\s)?A(?<altitude>\d+)\sRMK\s(?<remarks>.*)\\n/,
         metar
       )
 
     %{
+      altitude: String.to_integer(a),
       condition: translate_condition(c),
       dewpoint_c: c_to_int(dp),
+      lastmod: l,
       phenomena: translate_phenomena(qual, desc, prec, obs, oth),
+      remarks: r,
+      station: s,
       temperature_c: c_to_int(t),
       visibility_mi: String.to_integer(v),
       wind_bearing: String.to_integer(wd),
